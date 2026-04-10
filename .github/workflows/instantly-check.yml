@@ -40,7 +40,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SHEET_WEBAPP_URL: ${{ secrets.SHEET_WEBAPP_URL }}
           ALERT_RECIPIENTS: ${{ secrets.ALERT_RECIPIENTS }}
-          FROM_EMAIL: 'alerts@revival.ai'
+          FROM_EMAIL: 'alerts@water.reviival.ai'
           WORKSPACE_NAME: 'REBM'
           RUN_MODE: ${{ github.event.inputs.run_mode }}
         run: node scripts/check.js
