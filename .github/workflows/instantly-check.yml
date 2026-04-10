@@ -1,0 +1,46 @@
+name: REBM Instantly Capacity Check
+
+on:
+  schedule:
+    # Times in UTC. EDT = UTC-4 (Apr-Oct), EST = UTC-5 (Nov-Mar).
+    # Currently EDT, so:
+    #   1 PM EDT = 17:00 UTC  (midday)
+    #   4 PM EDT = 20:00 UTC  (check)
+    #   9 PM EDT = 01:00 UTC next day (recap)
+    - cron: '0 17 * * *'  # 1 PM EDT
+    - cron: '0 20 * * *'  # 4 PM EDT
+    - cron: '0 1 * * *'   # 9 PM EDT (previous day local)
+  workflow_dispatch:
+    inputs:
+      run_mode:
+        description: 'Run mode (midday, check, recap)'
+        required: false
+        default: 'midday'
+        type: choice
+        options:
+          - midday
+          - check
+          - recap
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run capacity check
+        env:
+          INSTANTLY_API_KEY: ${{ secrets.INSTANTLY_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SHEET_WEBAPP_URL: ${{ secrets.SHEET_WEBAPP_URL }}
+          ALERT_RECIPIENTS: ${{ secrets.ALERT_RECIPIENTS }}
+          FROM_EMAIL: 'alerts@revival.ai'
+          WORKSPACE_NAME: 'REBM'
+          RUN_MODE: ${{ github.event.inputs.run_mode }}
+        run: node scripts/check.js
